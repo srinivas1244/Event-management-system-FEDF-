@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -21,9 +20,7 @@ interface LostItem {
   image_url?: string;
   contact_info?: string;
   created_at: string;
-  profiles: {
-    full_name: string;
-  };
+  poster_name?: string;
 }
 
 const LostAndFoundSection = ({ userId }: { userId: string }) => {
@@ -43,66 +40,36 @@ const LostAndFoundSection = ({ userId }: { userId: string }) => {
 
   useEffect(() => {
     fetchItems();
-    
-    // Subscribe to realtime updates
-    const channel = supabase
-      .channel('lost-found-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'lost_and_found' }, () => {
-        fetchItems();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const fetchItems = async () => {
-    const { data, error } = await supabase
-      .from("lost_and_found")
-      .select("*, profiles(full_name)")
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setItems(data as LostItem[]);
-    }
+    const raw = localStorage.getItem("cc_lostfound");
+    const list: LostItem[] = raw ? JSON.parse(raw) : [];
+    setItems(list.sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime()));
     setLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const { error } = await supabase.from("lost_and_found").insert([{
+    const raw = localStorage.getItem("cc_lostfound");
+    const list: LostItem[] = raw ? JSON.parse(raw) : [];
+    const item: LostItem = {
+      id: crypto.randomUUID(),
       title: formData.title,
       description: formData.description,
       category: formData.category,
       location: formData.location,
-      status: formData.status as "lost" | "found" | "claimed",
+      status: formData.status,
       contact_info: formData.contact_info,
-      user_id: userId,
-    }]);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Item posted successfully!",
-      });
-      setDialogOpen(false);
-      setFormData({
-        title: "",
-        description: "",
-        category: "",
-        location: "",
-        status: "lost",
-        contact_info: "",
-      });
-    }
+      created_at: new Date().toISOString(),
+      poster_name: "You",
+    };
+    list.unshift(item);
+    localStorage.setItem("cc_lostfound", JSON.stringify(list));
+    toast({ title: "Success", description: "Item posted successfully!" });
+    setDialogOpen(false);
+    setFormData({ title: "", description: "", category: "", location: "", status: "lost", contact_info: "" });
+    fetchItems();
   };
 
   return (
@@ -203,7 +170,7 @@ const LostAndFoundSection = ({ userId }: { userId: string }) => {
                   {new Date(item.created_at).toLocaleDateString()}
                 </div>
                 <div className="pt-2 border-t">
-                  <p className="text-sm text-muted-foreground">Posted by {item.profiles.full_name}</p>
+                  <p className="text-sm text-muted-foreground">Posted by {item.poster_name || "Unknown"}</p>
                   {item.contact_info && (
                     <p className="text-sm text-primary font-medium mt-1">{item.contact_info}</p>
                   )}

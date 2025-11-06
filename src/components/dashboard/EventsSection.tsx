@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -20,10 +19,8 @@ interface Event {
   event_date: string;
   status: string;
   max_attendees?: number;
-  profiles: {
-    full_name: string;
-  };
-  event_attendees: { count: number }[];
+  organizer_name?: string;
+  attendees_count?: number;
 }
 
 const EventsSection = ({ userId, userRole }: { userId: string; userRole?: string }) => {
@@ -44,77 +41,50 @@ const EventsSection = ({ userId, userRole }: { userId: string; userRole?: string
 
   useEffect(() => {
     fetchEvents();
-    
-    const channel = supabase
-      .channel('events-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
-        fetchEvents();
-      })
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const fetchEvents = async () => {
-    const { data, error } = await supabase
-      .from("events")
-      .select("*, profiles(full_name), event_attendees(count)")
-      .order("event_date", { ascending: true });
-
-    if (!error && data) {
-      setEvents(data as unknown as Event[]);
-    }
+    const raw = localStorage.getItem("cc_events");
+    const items: Event[] = raw ? JSON.parse(raw) : [];
+    setEvents(items.sort((a,b)=>new Date(a.event_date).getTime()-new Date(b.event_date).getTime()));
     setLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const { error } = await supabase.from("events").insert([{
+    const raw = localStorage.getItem("cc_events");
+    const items: Event[] = raw ? JSON.parse(raw) : [];
+    const newEvent: Event = {
+      id: crypto.randomUUID(),
       title: formData.title,
       description: formData.description,
       category: formData.category,
       location: formData.location,
       event_date: formData.event_date,
-      max_attendees: formData.max_attendees ? parseInt(formData.max_attendees) : null,
-      organizer_id: userId,
-    }]);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Event created successfully!",
-      });
-      setDialogOpen(false);
-      setFormData({ title: "", description: "", category: "", location: "", event_date: "", max_attendees: "" });
-    }
+      status: "upcoming",
+      max_attendees: formData.max_attendees ? parseInt(formData.max_attendees) : undefined,
+      organizer_name: "You",
+      attendees_count: 0,
+    };
+    items.push(newEvent);
+    localStorage.setItem("cc_events", JSON.stringify(items));
+    toast({ title: "Success", description: "Event created successfully!" });
+    setDialogOpen(false);
+    setFormData({ title: "", description: "", category: "", location: "", event_date: "", max_attendees: "" });
+    fetchEvents();
   };
 
   const handleRegister = async (eventId: string) => {
-    const { error } = await supabase.from("event_attendees").insert([{
-      event_id: eventId,
-      user_id: userId,
-    }]);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Registered for event!",
-      });
+    const raw = localStorage.getItem("cc_events");
+    const items: Event[] = raw ? JSON.parse(raw) : [];
+    const idx = items.findIndex(e => e.id === eventId);
+    if (idx >= 0) {
+      const e = items[idx];
+      e.attendees_count = (e.attendees_count || 0) + 1;
+      items[idx] = e;
+      localStorage.setItem("cc_events", JSON.stringify(items));
+      toast({ title: "Success", description: "Registered for event!" });
+      fetchEvents();
     }
   };
 
@@ -210,11 +180,11 @@ const EventsSection = ({ userId, userRole }: { userId: string; userRole?: string
                 {event.max_attendees && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Users className="w-4 h-4" />
-                    {event.event_attendees[0]?.count || 0} / {event.max_attendees} registered
+                    {event.attendees_count || 0} / {event.max_attendees} registered
                   </div>
                 )}
                 <div className="pt-2 border-t">
-                  <p className="text-sm text-muted-foreground mb-2">Organized by {event.profiles.full_name}</p>
+                  <p className="text-sm text-muted-foreground mb-2">Organized by {event.organizer_name || "Unknown"}</p>
                   <Button className="w-full" size="sm" onClick={() => handleRegister(event.id)} style={{ background: "var(--gradient-primary)" }}>
                     Register
                   </Button>
@@ -229,3 +199,4 @@ const EventsSection = ({ userId, userRole }: { userId: string; userRole?: string
 };
 
 export default EventsSection;
+

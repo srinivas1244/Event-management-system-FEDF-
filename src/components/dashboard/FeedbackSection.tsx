@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -35,46 +34,36 @@ const FeedbackSection = ({ userId }: { userId: string }) => {
 
   useEffect(() => {
     fetchFeedback();
-  }, []);
+  }, [userId]);
 
   const fetchFeedback = async () => {
-    const { data, error } = await supabase
-      .from("feedback")
-      .select("*")
-      .eq("user_id", userId)
-      .order("created_at", { ascending: false });
-
-    if (!error && data) {
-      setFeedbacks(data);
-    }
+    const raw = localStorage.getItem("cc_feedback");
+    const all: Record<string, Feedback[]> = raw ? JSON.parse(raw) : {};
+    const list = (all[userId] || []).sort((a,b)=>new Date(b.created_at).getTime()-new Date(a.created_at).getTime());
+    setFeedbacks(list);
     setLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    const { error } = await supabase.from("feedback").insert([{
+    const raw = localStorage.getItem("cc_feedback");
+    const all: Record<string, Feedback[]> = raw ? JSON.parse(raw) : {};
+    const list = all[userId] || [];
+    const item: Feedback = {
+      id: crypto.randomUUID(),
       category: formData.category,
       subject: formData.subject,
       message: formData.message,
-      user_id: userId,
-    }]);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Feedback submitted successfully!",
-      });
-      setDialogOpen(false);
-      setFormData({ category: "", subject: "", message: "" });
-      fetchFeedback();
-    }
+      status: "submitted",
+      created_at: new Date().toISOString(),
+    };
+    list.unshift(item);
+    all[userId] = list;
+    localStorage.setItem("cc_feedback", JSON.stringify(all));
+    toast({ title: "Success", description: "Feedback submitted successfully!" });
+    setDialogOpen(false);
+    setFormData({ category: "", subject: "", message: "" });
+    fetchFeedback();
   };
 
   return (

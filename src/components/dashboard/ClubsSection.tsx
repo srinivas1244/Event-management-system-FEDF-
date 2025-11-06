@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,9 +11,7 @@ interface Club {
   description: string;
   category: string;
   member_count: number;
-  profiles: {
-    full_name: string;
-  } | null;
+  president_name?: string | null;
 }
 
 const ClubsSection = ({ userId, userRole }: { userId: string; userRole?: string }) => {
@@ -27,34 +24,21 @@ const ClubsSection = ({ userId, userRole }: { userId: string; userRole?: string 
   }, []);
 
   const fetchClubs = async () => {
-    const { data, error } = await supabase
-      .from("clubs")
-      .select("*, profiles(full_name)")
-      .order("name");
-
-    if (!error && data) {
-      setClubs(data as Club[]);
-    }
+    const raw = localStorage.getItem("cc_clubs");
+    const list: Club[] = raw ? JSON.parse(raw) : [];
+    setClubs(list.sort((a,b)=>a.name.localeCompare(b.name)));
     setLoading(false);
   };
 
   const handleJoin = async (clubId: string) => {
-    const { error } = await supabase.from("club_members").insert([{
-      club_id: clubId,
-      user_id: userId,
-    }]);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: error.message,
-        variant: "destructive",
-      });
-    } else {
-      toast({
-        title: "Success",
-        description: "Joined club successfully!",
-      });
+    const raw = localStorage.getItem("cc_clubs");
+    const list: Club[] = raw ? JSON.parse(raw) : [];
+    const idx = list.findIndex(c=>c.id===clubId);
+    if (idx>=0){
+      list[idx].member_count = (list[idx].member_count||0)+1;
+      localStorage.setItem("cc_clubs", JSON.stringify(list));
+      setClubs(list);
+      toast({ title: "Success", description: "Joined club successfully!" });
     }
   };
 
@@ -85,9 +69,9 @@ const ClubsSection = ({ userId, userRole }: { userId: string; userRole?: string 
                   <Users className="w-4 h-4" />
                   {club.member_count} members
                 </div>
-                {club.profiles && (
+                {club.president_name && (
                   <p className="text-sm text-muted-foreground">
-                    President: {club.profiles.full_name}
+                    President: {club.president_name}
                   </p>
                 )}
                 <Button className="w-full gap-2" size="sm" onClick={() => handleJoin(club.id)} style={{ background: "var(--gradient-primary)" }}>
@@ -104,3 +88,4 @@ const ClubsSection = ({ userId, userRole }: { userId: string; userRole?: string 
 };
 
 export default ClubsSection;
+

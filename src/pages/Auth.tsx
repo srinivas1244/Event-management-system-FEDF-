@@ -1,17 +1,15 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { useNavigate, Link } from "react-router-dom";
+import { getSession, login, loginWithStudentId, register, getUserByEmail } from "@/lib/localAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { GraduationCap, Loader2 } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
+import { GraduationCap, Loader2, Shield, Mail, AlertCircle, Database } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { auth } from "../firebase/firebaseconfig"; // adjust path
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -22,68 +20,133 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [department, setDepartment] = useState("");
   const [studentId, setStudentId] = useState("");
+  const [role, setRole] = useState<string>("student");
+  const [signInMode, setSignInMode] = useState<"email"|"student">("email");
 
   useEffect(() => {
-    // Check if user is already logged in (Supabase)
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) navigate("/dashboard");
-    });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
-        navigate("/dashboard");
-      }
-    });
-
-    return () => subscription.unsubscribe();
+    const session = getSession();
+    if (session) navigate("/dashboard");
   }, [navigate]);
 
-  // Firebase Google Sign-In
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    const provider = new GoogleAuthProvider();
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      console.log("User signed in with Google:", user);
-      navigate("/dashboard"); // redirect after login
-    } catch (error: any) {
-      console.error("Google Sign-In error:", error.message);
-      toast({ title: "Google sign-in failed", description: error.message, variant: "destructive" });
-    } finally {
-      setLoading(false);
+  // Email validation helper
+  const validateEmail = (email: string, selectedRole: string): { valid: boolean; message?: string } => {
+    const isKlhEmail = email.toLowerCase().endsWith("@klh.edu.in");
+    
+    if (selectedRole === "student") {
+      if (!isKlhEmail) {
+        return { 
+          valid: false, 
+          message: "Students must use their college email (@klh.edu.in)" 
+        };
+      }
     }
+    
+    return { valid: true };
   };
 
-  // Supabase Email/Password Sign-Up
+  // Local Email/Password Sign-Up
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !fullName) {
-      toast({ title: "Missing fields", description: "Please fill in all required fields", variant: "destructive" });
+    
+    // Validate required fields
+    if (!email || !password || !fullName || !role) {
+      toast({ 
+        title: "Missing fields", 
+        description: "Please fill in all required fields", 
+        variant: "destructive" 
+      });
       return;
     }
+    
+    // Validate email based on role
+    const emailValidation = validateEmail(email, role);
+    if (!emailValidation.valid) {
+      toast({ 
+        title: "Invalid email", 
+        description: emailValidation.message, 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
+    // For students, require department and student ID
+    if (role === "student" && (!department || !studentId)) {
+      toast({ 
+        title: "Missing student information", 
+        description: "Students must provide department and student ID", 
+        variant: "destructive" 
+      });
+      return;
+    }
+    
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { data: { full_name: fullName, department, student_id: studentId }, emailRedirectTo: `${window.location.origin}/dashboard` },
+    const { error } = register({ 
+      email, 
+      password, 
+      full_name: fullName, 
+      department, 
+      student_id: studentId, 
+      role: role as any 
     });
     setLoading(false);
-    if (error) toast({ title: "Sign up failed", description: error.message, variant: "destructive" });
-    else toast({ title: "Success!", description: "Account created successfully. You can now sign in." });
+    
+    if (error) {
+      toast({ title: "Sign up failed", description: error, variant: "destructive" });
+    } else {
+      toast({ 
+        title: "Account created!", 
+        description: `Welcome to Smart Campus, ${fullName}!` 
+      });
+      navigate("/dashboard");
+    }
   };
 
-  // Supabase Email/Password Sign-In
+  // Local Email/Password Sign-In
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
-      toast({ title: "Missing fields", description: "Please enter email and password", variant: "destructive" });
-      return;
+    
+    if (signInMode === "email") {
+      if (!email || !password) {
+        toast({ 
+          title: "Missing fields", 
+          description: "Please enter email and password", 
+          variant: "destructive" 
+        });
+        return;
+      }
+      
+      // Check if user exists and validate email for students
+      const existing = getUserByEmail(email);
+      if (existing?.role === "student" && !email.toLowerCase().endsWith("@klh.edu.in")) {
+        toast({ 
+          title: "Invalid email", 
+          description: "Students must sign in with their @klh.edu.in email", 
+          variant: "destructive" 
+        });
+        return;
+      }
+    } else {
+      if (!studentId || !password) {
+        toast({ 
+          title: "Missing fields", 
+          description: "Please enter student ID and password", 
+          variant: "destructive" 
+        });
+        return;
+      }
     }
+    
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = signInMode === "email" 
+      ? login({ email, password }) 
+      : loginWithStudentId({ student_id: studentId, password });
     setLoading(false);
-    if (error) toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
+    
+    if (error) {
+      toast({ title: "Sign in failed", description: error, variant: "destructive" });
+    } else {
+      navigate("/dashboard");
+    }
   };
 
   return (
@@ -114,8 +177,24 @@ const Auth = () => {
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signin-email">Email</Label>
-                    <Input id="signin-email" type="email" placeholder="xxxxx@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                    <Label>Login With</Label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button type="button" variant={signInMode==='email'?'default':'outline'} onClick={()=>setSignInMode('email')}>Email</Button>
+                      <Button type="button" variant={signInMode==='student'?'default':'outline'} onClick={()=>setSignInMode('student')}>Student ID</Button>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {signInMode === 'email' ? (
+                      <>
+                        <Label htmlFor="signin-email">Email</Label>
+                        <Input id="signin-email" type="email" placeholder="xxxxx@email.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                      </>
+                    ) : (
+                      <>
+                        <Label htmlFor="signin-student">Student ID</Label>
+                        <Input id="signin-student" type="text" placeholder="24100*****" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
+                      </>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signin-password">Password</Label>
@@ -124,60 +203,188 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={loading} style={{ background: "var(--gradient-primary)" }}>
                     {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Signing in...</> : "Sign In"}
                   </Button>
-
-                  {/* Google Sign-In Button */}
-                  <Button
-                    type="button"
-                    onClick={handleGoogleSignIn}
-                    className="w-full mt-2 flex items-center justify-center gap-2"
-                    style={{ background: "#DB4437", color: "white" }}
-                  >
-                    <FcGoogle className="w-4 h-4" /> Sign in with Google
-                  </Button>
                 </form>
               </TabsContent>
 
               {/* Sign-Up Tab */}
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
+                  {/* Role Selection - First */}
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name *</Label>
-                    <Input id="signup-name" type="text" placeholder="Enter your name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email *</Label>
-                    <Input id="signup-email" type="email" placeholder="xxxxx@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password *</Label>
-                    <Input id="signup-password" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="department">Department</Label>
-                    <Select value={department} onValueChange={setDepartment}>
+                    <Label htmlFor="role" className="flex items-center gap-2">
+                      <Shield className="w-4 h-4 text-primary" />
+                      Role *
+                    </Label>
+                    <Select value={role} onValueChange={(value) => {
+                      setRole(value);
+                      // Clear student-specific fields if not student
+                      if (value !== "student") {
+                        setStudentId("");
+                      }
+                    }}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select department" />
+                        <SelectValue placeholder="Select your role" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="CSE">CSE</SelectItem>
-                        <SelectItem value="AI&DS">AI&DS</SelectItem>
-                        <SelectItem value="ECE">ECE</SelectItem>
-                        <SelectItem value="BCA">BCA</SelectItem>
+                        <SelectItem value="student">
+                          <div className="flex items-center gap-2">
+                            <GraduationCap className="w-4 h-4" />
+                            Student
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="faculty">
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-4 h-4" />
+                            Faculty
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="admin">
+                          <div className="flex items-center gap-2">
+                            <Shield className="w-4 h-4" />
+                            Admin
+                          </div>
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Email Validation Alert */}
+                  {role === "student" && (
+                    <Alert className="bg-blue-50 border-blue-200">
+                      <AlertCircle className="h-4 w-4 text-blue-600" />
+                      <AlertDescription className="text-blue-800 text-sm">
+                        Students must use their college email: <strong>@klh.edu.in</strong>
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
                   <div className="space-y-2">
-                    <Label htmlFor="student-id">Student ID</Label>
-                    <Input id="student-id" type="text" placeholder="24100*****" value={studentId} onChange={(e) => setStudentId(e.target.value)} />
+                    <Label htmlFor="signup-name">Full Name *</Label>
+                    <Input 
+                      id="signup-name" 
+                      type="text" 
+                      placeholder="Enter your full name" 
+                      value={fullName} 
+                      onChange={(e) => setFullName(e.target.value)} 
+                      required 
+                    />
                   </div>
-                  <Button type="submit" className="w-full" disabled={loading} style={{ background: "var(--gradient-primary)" }}>
-                    {loading ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" />Creating account...</> : "Create Account"}
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-email" className="flex items-center gap-2">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      Email *
+                    </Label>
+                    <Input 
+                      id="signup-email" 
+                      type="email" 
+                      placeholder={role === "student" ? "yourname@klh.edu.in" : "your.email@example.com"}
+                      value={email} 
+                      onChange={(e) => setEmail(e.target.value)} 
+                      required 
+                    />
+                    {role === "student" && email && !email.toLowerCase().endsWith("@klh.edu.in") && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        Must be a @klh.edu.in email
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="signup-password">Password *</Label>
+                    <Input 
+                      id="signup-password" 
+                      type="password" 
+                      placeholder="••••••••" 
+                      value={password} 
+                      onChange={(e) => setPassword(e.target.value)} 
+                      required 
+                      minLength={6}
+                    />
+                    <p className="text-xs text-muted-foreground">Minimum 6 characters</p>
+                  </div>
+
+                  {/* Student-specific fields */}
+                  {role === "student" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="department">Department *</Label>
+                        <Select value={department} onValueChange={setDepartment}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="CSE">Computer Science & Engineering</SelectItem>
+                            <SelectItem value="AI&DS">AI & Data Science</SelectItem>
+                            <SelectItem value="ECE">Electronics & Communication</SelectItem>
+                            <SelectItem value="BCA">Bachelor of Computer Applications</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="signup-student-id">Student ID *</Label>
+                        <Input 
+                          id="signup-student-id" 
+                          type="text" 
+                          placeholder="24100*****" 
+                          value={studentId} 
+                          onChange={(e) => setStudentId(e.target.value)} 
+                        />
+                      </div>
+                    </>
+                  )}
+
+                  {/* Faculty/Admin optional fields */}
+                  {(role === "faculty" || role === "admin") && (
+                    <div className="space-y-2">
+                      <Label htmlFor="department">Department (Optional)</Label>
+                      <Select value={department} onValueChange={setDepartment}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select department" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="CSE">Computer Science & Engineering</SelectItem>
+                          <SelectItem value="AI&DS">AI & Data Science</SelectItem>
+                          <SelectItem value="ECE">Electronics & Communication</SelectItem>
+                          <SelectItem value="BCA">Bachelor of Computer Applications</SelectItem>
+                          <SelectItem value="Administration">Administration</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={loading} 
+                    style={{ background: "var(--gradient-primary)" }}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating account...
+                      </>
+                    ) : (
+                      "Create Account"
+                    )}
                   </Button>
                 </form>
               </TabsContent>
             </Tabs>
           </CardContent>
         </Card>
+
+        {/* Clear Storage Link */}
+        <div className="mt-6 text-center">
+          <Link to="/clear-storage">
+            <Button variant="ghost" size="sm" className="gap-2 text-muted-foreground hover:text-foreground">
+              <Database className="w-4 h-4" />
+              Manage Local Storage
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

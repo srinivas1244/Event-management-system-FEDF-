@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageSquare, Send, X, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
 interface Message {
@@ -33,30 +32,21 @@ const ChatbotWidget = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("campus-chatbot", {
-        body: { message: input },
-      });
+      // Simple local mock: canned responses for a few keywords, otherwise echo
+      const lower = input.toLowerCase();
+      let response = "I can help with events, lost & found, clubs, and feedback. Try asking: 'show events'.";
+      if (lower.includes("event")) response = "Upcoming events are stored locally. Check the Events tab in the dashboard.";
+      else if (lower.includes("lost")) response = "Use Lost & Found to post or browse items. Data is stored in your browser locally.";
+      else if (lower.includes("club")) response = "Explore clubs in the Clubs tab. You can join and the count updates locally.";
+      else if (lower.includes("feedback")) response = "Submit feedback in the Feedback tab. It will appear immediately in your list.";
+      else response = `You said: "${input}"`;
 
-      if (error) throw error;
-
-      const assistantMessage: Message = {
-        role: "assistant",
-        content: data.response || "I'm sorry, I couldn't process that request.",
-      };
+      const assistantMessage: Message = { role: "assistant", content: response };
+      // Simulate small delay
+      await new Promise(r => setTimeout(r, 400));
       setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || "Failed to get response from chatbot",
-        variant: "destructive",
-      });
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "assistant",
-          content: "I'm sorry, I'm having trouble connecting right now. Please try again later.",
-        },
-      ]);
+    } catch (_err) {
+      toast({ title: "Error", description: "Mock chatbot failed", variant: "destructive" });
     } finally {
       setLoading(false);
     }
