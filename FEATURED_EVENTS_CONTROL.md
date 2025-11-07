@@ -1,20 +1,19 @@
 # ⭐ Featured Events Control System
 
 ## Overview
-Faculty and Admin now have complete control over which events appear in the Featured and Upcoming Events sections. By default, new events only appear in the main events list. Events must be explicitly marked as "Featured" to appear in the top sections.
+Faculty and Admin now have complete control over which events appear in the Upcoming Events section. By default, new events only appear in the main events list. Events must be explicitly marked as "Featured" to appear in the top section.
 
 ## ✨ Key Changes
 
 ### **1. Default Behavior** 📋
 When Faculty/Admin create a new event:
 - ✅ Event appears in **All Events** list immediately
-- ❌ Event does NOT appear in **Featured Events** section
 - ❌ Event does NOT appear in **Upcoming Events** section
-- ⭐ Must be explicitly marked as "Featured" to appear in top sections
+- ⭐ Must be explicitly marked as "Featured" to appear in top section
 
 ### **2. Featured Events Control** ⭐
 New checkbox in event creation/editing form:
-- **Checked** ✅ - Event appears in Featured/Upcoming sections
+- **Checked** ✅ - Event appears in Upcoming Events section
 - **Unchecked** ❌ - Event only appears in main events list
 - Faculty/Admin can toggle this anytime by editing the event
 

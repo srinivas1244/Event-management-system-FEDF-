@@ -139,13 +139,6 @@ export function paginate<T>(arr: T[], page: number, pageSize: number): { data: T
   return { data: arr.slice(start, start + pageSize), total, pages };
 }
 
-export function featured(items: EventItem[]): EventItem[] {
-  return [...items]
-    .filter(e => e.isFeatured === true && e.approvalStatus === "approved")
-    .sort((a,b) => (b.attendees.length) - (a.attendees.length))
-    .slice(0, 5);
-}
-
 export function upcoming(items: EventItem[]): EventItem[] {
   const now = new Date();
   return [...items]

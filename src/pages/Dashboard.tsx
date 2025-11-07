@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { LogOut, Bell, User as UserIcon, Settings, Mail, Building2, IdCard, Shield, Sparkles, TrendingUp, Users, Calendar } from "lucide-react";
 import EnhancedEventsSection from "@/components/dashboard/EnhancedEventsSection";
 import UserManagement from "@/components/dashboard/UserManagement";
+import EventGallery from "@/components/dashboard/EventGallery";
+import Testimonials from "@/components/dashboard/Testimonials";
+import NotificationCenter from "@/components/dashboard/NotificationCenter";
 import ChatbotWidget from "@/components/ChatbotWidget";
 import { useUser } from "@/context/UserContext";
 import {
@@ -35,7 +38,7 @@ const Dashboard = () => {
     department: "",
     student_id: "",
   });
-  const [activeTab, setActiveTab] = useState("events");
+  const [activeTab, setActiveTab] = useState("home");
 
   const departments = ["CSE", "AI&DS", "ECE", "BCA"];
 
@@ -127,10 +130,7 @@ const Dashboard = () => {
             </div>
             {userCtx?.role && (
               <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" className="relative hover:bg-primary/10 transition-all hover:scale-110">
-                  <Bell className="w-5 h-5" />
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-                </Button>
+                <NotificationCenter />
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -181,33 +181,47 @@ const Dashboard = () => {
           <div className="h-1 w-24 bg-gradient-to-r from-primary to-secondary rounded-full"></div>
         </div>
 
-        {/* Tabs for Faculty/Admin */}
-        {(session?.role === "faculty" || session?.role === "admin") ? (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <TabsList className="grid w-full max-w-md grid-cols-2 mb-6">
-              <TabsTrigger value="events" className="gap-2">
-                <Calendar className="w-4 h-4" />
-                Events
-              </TabsTrigger>
+        {/* Tabs */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
+          <TabsList className={`grid w-full max-w-2xl mb-6 ${(session?.role === "faculty" || session?.role === "admin") ? 'grid-cols-4' : 'grid-cols-3'}`}>
+            <TabsTrigger value="home" className="gap-2">
+              <Sparkles className="w-4 h-4" />
+              Home
+            </TabsTrigger>
+            <TabsTrigger value="events" className="gap-2">
+              <Calendar className="w-4 h-4" />
+              Events
+            </TabsTrigger>
+            <TabsTrigger value="gallery" className="gap-2">
+              <Building2 className="w-4 h-4" />
+              Gallery
+            </TabsTrigger>
+            {(session?.role === "faculty" || session?.role === "admin") && (
               <TabsTrigger value="users" className="gap-2">
                 <Users className="w-4 h-4" />
-                User Management
+                Users
               </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="events">
-              <EnhancedEventsSection userId={session?.id || ""} userRole={userCtx?.role} />
-            </TabsContent>
-            
+            )}
+          </TabsList>
+          
+          <TabsContent value="home" className="space-y-8">
+            <Testimonials />
+          </TabsContent>
+          
+          <TabsContent value="events">
+            <EnhancedEventsSection userId={session?.id || ""} userRole={userCtx?.role} />
+          </TabsContent>
+          
+          <TabsContent value="gallery">
+            <EventGallery />
+          </TabsContent>
+          
+          {(session?.role === "faculty" || session?.role === "admin") && (
             <TabsContent value="users">
               <UserManagement currentUserRole={session?.role} />
             </TabsContent>
-          </Tabs>
-        ) : (
-          <div className="animate-fade-in-up" style={{ animationDelay: "0.2s" }}>
-            <EnhancedEventsSection userId={session?.id || ""} userRole={userCtx?.role} />
-          </div>
-        )}
+          )}
+        </Tabs>
       </main>
 
       {/* Profile Dialog */}

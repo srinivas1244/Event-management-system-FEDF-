@@ -64,7 +64,6 @@ export default function EnhancedEventsSection({ userId, userRole }: { userId: st
     } catch {}
   }, []);
 
-  const featured = useMemo(() => store.featured(items), [items]);
   const upcoming = useMemo(() => store.upcoming(items), [items]);
 
   const filtered = useMemo(() => {
@@ -159,42 +158,7 @@ export default function EnhancedEventsSection({ userId, userRole }: { userId: st
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card className="border-none shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold">Featured Events</CardTitle>
-              <Badge variant="secondary" className="text-xs">Top picks</Badge>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {featured.map(e => (
-                <div 
-                  key={e.id} 
-                  className="min-w-[200px] rounded-lg border bg-card hover:shadow-md transition-all cursor-pointer"
-                  onClick={() => {
-                    setSelectedEvent(e);
-                    setDetailsDialogOpen(true);
-                  }}
-                >
-                  {e.poster_data_url ? (
-                    <img src={e.poster_data_url} className="w-full h-24 object-cover rounded-t-lg" alt={e.title} />
-                  ) : (
-                    <div className="w-full h-24 bg-gradient-to-br from-primary/10 to-primary/5 rounded-t-lg flex items-center justify-center">
-                      <ImageIcon className="w-8 h-8 text-primary/40" />
-                    </div>
-                  )}
-                  <div className="p-3">
-                    <div className="font-medium text-sm line-clamp-1">{e.title}</div>
-                    <div className="text-xs text-muted-foreground mt-1">{new Date(e.event_date).toLocaleDateString()}</div>
-                  </div>
-                </div>
-              ))}
-              {featured.length === 0 && <div className="text-sm text-muted-foreground py-4">No featured events yet</div>}
-            </div>
-          </CardContent>
-        </Card>
+      <div className="grid gap-4">
         <Card className="border-none shadow-sm">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -328,10 +292,10 @@ export default function EnhancedEventsSection({ userId, userRole }: { userId: st
                       />
                       <div className="flex-1">
                         <Label htmlFor="isFeatured" className="cursor-pointer font-medium">
-                          Add to Featured/Upcoming Events Section
+                          Add to Upcoming Events Section
                         </Label>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Check this to display the event in the Featured and Upcoming Events sections at the top. 
+                          Check this to display the event in the Upcoming Events section at the top. 
                           Unchecked events will only appear in the main events list.
                         </p>
                       </div>
