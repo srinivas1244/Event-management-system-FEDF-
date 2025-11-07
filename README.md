@@ -1,19 +1,9 @@
-<<<<<<< HEAD
-# Welcome to your Lovable project
-
-## Project info
-
-**URL**: https://lovable.dev/projects/5ec058ff-5c0a-4af2-aafa-42108108d302
 
 ## How can I edit this code?
 
 There are several ways of editing your application.
 
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/5ec058ff-5c0a-4af2-aafa-42108108d302) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
+**
 
 **Use your preferred IDE**
 
@@ -61,22 +51,3 @@ This project is built with:
 - shadcn-ui
 - Tailwind CSS
 
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/5ec058ff-5c0a-4af2-aafa-42108108d302) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
-=======
-# Event-management-system-FEDF-
-Project Description – College Event Management System
-
-The College Event Management System is a web/mobile-based application developed to streamline the organization and management of events within a college. It allows students to register for events, view schedules, and receive notifications, while faculty coordinators and organizers can create events, manage registrations, assign volunteers, and track attendance.
-
-The system centralizes all event-related information, reducing manual paperwork and communication gaps. Features like event registration, participant management, event calendar, notifications, and reporting make it easier for both organizers and participants. This ensures better coordination, time-saving, and improved student engagement in college activities.
->>>>>>> 253126c555c2a0f3a2b102d6037bad8082d8e7a5
