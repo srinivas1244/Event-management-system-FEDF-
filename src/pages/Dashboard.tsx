@@ -8,7 +8,7 @@ import UserManagement from "@/components/dashboard/UserManagement";
 import EventGallery from "@/components/dashboard/EventGallery";
 import Testimonials from "@/components/dashboard/Testimonials";
 import NotificationCenter from "@/components/dashboard/NotificationCenter";
-import ChatbotWidget from "@/components/ChatbotWidget";
+
 import { useUser } from "@/context/UserContext";
 import {
   DropdownMenu,
@@ -350,7 +350,7 @@ const Dashboard = () => {
       </Dialog>
 
       {/* Chatbot Widget */}
-      <ChatbotWidget />
+
     </div>
   );
 };
