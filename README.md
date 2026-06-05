@@ -1,12 +1,6 @@
 # 📚 Event Management System (Campus Connect)
 
-<div align="center">
-  <img src="assets/Dashboard%20(1).png" width="800" alt="Dashboard 1">
-  <img src="assets/Dashboard%20(2).png" width="800" alt="Dashboard 2">
-  <img src="assets/Dashboard%20(3).png" width="800" alt="Dashboard 3">
-  <img src="assets/Dashboard%20(4).png" width="800" alt="Dashboard 4">
-  <img src="assets/Dashboard%20(5).png" width="800" alt="Dashboard 5">
-</div>
+
 
 
 ## ✨ Overview
@@ -71,11 +65,15 @@ The app uses **localStorage** for data persistence during development. No backen
 3. Approve registrations and issue certificates.
 4. Manage users and view detailed analytics.
 
+<div align="center">
+  <img src="assets/Dashboard%20(1).png" width="800" alt="Dashboard 1">
+  <img src="assets/Dashboard%20(2).png" width="800" alt="Dashboard 2">
+  <img src="assets/Dashboard%20(3).png" width="800" alt="Dashboard 3">
+  <img src="assets/Dashboard%20(4).png" width="800" alt="Dashboard 4">
+  <img src="assets/Dashboard%20(5).png" width="800" alt="Dashboard 5">
+</div>
 
 
-## 📚 Documentation
-- Code is organized under `/src` with clear separation of **components**, **contexts**, **hooks**, and **pages**.
-- Tailwind configuration lives in `tailwind.config.ts` – feel free to customize the design tokens.
 
 ## 🙏 Contributing
 Contributions are welcome! Please fork the repository, create a feature branch, and submit a pull request.
