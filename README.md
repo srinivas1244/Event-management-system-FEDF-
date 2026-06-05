@@ -1,5 +1,28 @@
 # 📚 Event Management System (Campus Connect)
 
+<div align="center">
+  <img src="./assets/image.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-1.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-2.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-3.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-4.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-5.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-6.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-7.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-8.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-9.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-10.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-11.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-12.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-13.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-14.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-15.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-16.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-17.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-18.png" alt="Dashboard mockup" width="1000">
+  <img src="./assets/image-19.png" alt="Dashboard mockup" width="1000">
+</div>
+
 
 ## ✨ Overview
 A modern, **feature‑rich** web application that streamlines campus event management. It provides **role‑based access**, **event creation**, **registration**, **attendance tracking**, **certificate generation**, and **analytics**, all wrapped in a **visually stunning UI** with smooth animations and glass‑morphism cards.
