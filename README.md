@@ -1,11 +1,11 @@
 # 📚 Event Management System (Campus Connect)
 
 <div align="center">
-  <img src="./assets/DashBoard (1).png" alt="Dashboard " width="800">
-  <img src="./assets/DashBoard (2).png" alt="Dashboard " width="800">
-  <img src="./assets/DashBoard (3).png" alt="Dashboard " width="800">
-  <img src="./assets/DashBoard (4).png" alt="Dashboard " width="800">
-  <img src="./assets/DashBoard (5).png" alt="Dashboard " width="800">
+  <img src="assets/Dashboard%20(1).png" width="800" alt="Dashboard 1">
+  <img src="assets/Dashboard%20(2).png" width="800" alt="Dashboard 2">
+  <img src="assets/Dashboard%20(3).png" width="800" alt="Dashboard 3">
+  <img src="assets/Dashboard%20(4).png" width="800" alt="Dashboard 4">
+  <img src="assets/Dashboard%20(5).png" width="800" alt="Dashboard 5">
 </div>
 
 
