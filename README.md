@@ -1,52 +1,75 @@
+# 📚 Event Management System (Campus Connect)
 
-## How can I edit this code?
 
-There are several ways of editing your application.
+## ✨ Overview
+A modern, **feature‑rich** web application that streamlines campus event management. It provides **role‑based access**, **event creation**, **registration**, **attendance tracking**, **certificate generation**, and **analytics**, all wrapped in a **visually stunning UI** with smooth animations and glass‑morphism cards.
 
-**
-**Use your preferred IDE**
+## 🚀 Features
+- **Role‑Based Access Control**
+  - 🎓 *Student*: Browse events, register, download certificates.
+  - 👩‍🏫 *Faculty*: Create events, manage participants, issue certificates.
+  - 🛠️ *Admin*: Full system control, user management, analytics.
+- **Event Lifecycle**
+  - Create, approve, edit, and publish events.
+  - Team or individual registration with real‑time capacity tracking.
+- **Certificate System**
+  - Automatic PDF generation with QR‑code verification.
+  - Download and manage issued certificates.
+- **User Management**
+  - View, search, filter, and deactivate users.
+- **Analytics & Tracking**
+  - Participation stats, department breakdowns, and attendance rates.
+- **Polished UI/UX**
+  - Gradient backgrounds, glass‑morphism cards, responsive layout, and subtle micro‑animations.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. 
+## 🛠️ Tech Stack
+- **Frontend**: React 18, TypeScript
+- **Styling**: Tailwind CSS, shadcn/ui, Tailwind CSS Animate
+- **State Management**: React Context
+- **Routing**: React Router
+- **PDF Generation**: jsPDF
+- **QR Codes**: `qrcode` library
+- **Build Tool**: Vite
+- **Testing**: (Add your test framework here if any)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📦 Installation
+```bash
+# Clone the repo
+git clone https://github.com/YOUR_USERNAME/campus-connect.git
 
-Follow these steps:
+# Change directory
+cd campus-connect
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Run development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## ⚙️ Configuration
+The app uses **localStorage** for data persistence during development. No backend is required for a quick start. For production, replace the storage layer with your preferred API.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📖 Usage
+### Student
+1. Sign up with a college email (`@klh.edu.in`).
+2. Browse upcoming events.
+3. Register for events and view your participation history.
+4. Download certificates after event completion.
 
-**Use GitHub Codespaces**
+### Faculty / Admin
+1. Sign up with any email.
+2. Create and manage events.
+3. Approve registrations and issue certificates.
+4. Manage users and view detailed analytics.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
 
-## What technologies are used for this project?
 
-This project is built with:
+## 📚 Documentation
+- Code is organized under `/src` with clear separation of **components**, **contexts**, **hooks**, and **pages**.
+- Tailwind configuration lives in `tailwind.config.ts` – feel free to customize the design tokens.
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🙏 Contributing
+Contributions are welcome! Please fork the repository, create a feature branch, and submit a pull request.
+
 

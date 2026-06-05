@@ -1,6 +1,3 @@
-# 🎓 Campus Connect - Smart Campus Management System
-
-A comprehensive campus management platform built with React, TypeScript, and modern web technologies.
 
 ## ✨ Features
 
@@ -15,12 +12,6 @@ A comprehensive campus management platform built with React, TypeScript, and mod
 - Participant registration (individual/team)
 - Attendance tracking
 - Featured events control
-
-### 🏆 Certificate System
-- Professional PDF certificate generation
-- Auto-download functionality
-- Certificate tracking and management
-- Participant verification
 
 ### 👥 User Management
 - View all registered users
@@ -97,18 +88,4 @@ The app uses local storage for data persistence. No backend setup required for d
 - ✅ Responsive design
 - ✅ Smooth animations
 
-## 📄 License
 
-MIT License
-
-## 👨‍💻 Author
-
-Your Name - [Your GitHub Profile](https://github.com/YOUR_USERNAME)
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!
-
-## ⭐ Show your support
-
-Give a ⭐️ if this project helped you!

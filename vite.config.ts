@@ -7,12 +7,12 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "0.0.0.0",
     port: 8080,
-    allowedHosts: true,   // ✅ FIX for Render
+    allowedHosts: true,   
   },
   preview: {
     host: "0.0.0.0",
     port: 8080,
-    allowedHosts: true,   // ✅ Also required for production preview
+    allowedHosts: true,   
   },
 
   plugins: [
